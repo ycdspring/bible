@@ -206,49 +206,37 @@
 <script>
   (function(){
     const ua = navigator.userAgent;
-    const isInApp = /KAKAOTALK|NAVER|Instagram|FBAN|FBAV|Line|Snapchat|Twitter|WeChat|whatsapp/i.test(ua);
+    // 정확한 인앱 감지 (사파리/크롬은 제외)
+    const isKakao = /KAKAOTALK/i.test(ua);
+    const isInsta = /Instagram/i.test(ua);
+    const isFB    = /FBAN|FBAV/i.test(ua);
+    const isLine  = /Line\//i.test(ua);
+    const isInApp = isKakao || isInsta || isFB || isLine;
     if(!isInApp) return;
 
-    const url = encodeURI(location.href);
-    const isAndroid = /Android/i.test(ua);
+    const url = location.href;
     const isIOS = /iPhone|iPad|iPod/i.test(ua);
+    const isAndroid = /Android/i.test(ua);
 
-    document.open();
-    document.write(`<!DOCTYPE html><html><head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<style>
-body{margin:0;font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
-background:linear-gradient(160deg,#74b8d8 0%,#a8d4e8 35%,#d0eaf5 65%,#e8f4fa 100%);
-min-height:100vh;display:flex;align-items:center;justify-content:center;}
-.box{background:white;border-radius:20px;padding:36px 28px;max-width:320px;
-text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.12);}
-h2{font-size:1.1rem;font-weight:900;color:#1a1a3e;margin:12px 0 10px;}
-p{font-size:0.85rem;color:#555;line-height:1.6;margin-bottom:20px;}
-.btn{display:block;width:100%;padding:14px;border-radius:12px;
-font-size:0.95rem;font-weight:700;cursor:pointer;border:none;
-background:#5755ff;color:white;margin-bottom:10px;box-sizing:border-box;}
-.btn-sub{background:#f0f0ff;color:#5755ff;}
-.hint{font-size:0.75rem;color:#999;margin-top:16px;line-height:1.7;}
-</style></head><body>
-<div class="box">
-  <div style="font-size:2.5rem">✝️</div>
-  <h2>외부 브라우저로 열어주세요</h2>
-  <p>인쇄 기능을 사용하려면<br>외부 브라우저가 필요해요</p>
-  ${isIOS ? `<button class="btn" onclick="location.href='safari-'+decodeURI('${url}')">🧭 Safari로 열기</button>` : ''}
-  ${isAndroid ? `<button class="btn" onclick="location.href='intent:'+decodeURI('${url}')+'#Intent;scheme=https;package=com.android.chrome;end'">🌐 크롬으로 열기</button>` : ''}
-  <button class="btn btn-sub" onclick="
-    var u=decodeURI('${url}');
-    if(navigator.clipboard){navigator.clipboard.writeText(u).then(function(){alert('주소가 복사됐어요!\\n브라우저에 붙여넣기 해주세요 😊')});}
-    else{alert('주소를 복사해서 브라우저에서 열어주세요:\\n'+u);}
-  ">🔗 주소 복사하기</button>
-  <p class="hint">
-    📌 카카오톡: 우측 하단 ··· → 다른 브라우저로 열기<br>
-    📌 인스타그램: 우측 하단 ··· → 브라우저에서 열기
-  </p>
-</div>
-</body></html>`);
-    document.close();
+    // 전체 화면 오버레이
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:99999;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#74b8d8 0%,#a8d4e8 35%,#d0eaf5 65%,#e8f4fa 100%);';
+    overlay.innerHTML = `
+      <div style="background:white;border-radius:20px;padding:36px 28px;max-width:300px;width:85%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.12);">
+        <div style="font-size:2.5rem">✝️</div>
+        <h2 style="font-size:1.1rem;font-weight:900;color:#1a1a3e;margin:12px 0 8px;">외부 브라우저로 열어주세요</h2>
+        <p style="font-size:0.82rem;color:#555;line-height:1.6;margin-bottom:20px;">인쇄 기능을 사용하려면<br>외부 브라우저가 필요해요</p>
+        ${isIOS ? `<button onclick="location.href='safari-'+location.href" style="display:block;width:100%;padding:13px;border-radius:12px;font-size:0.95rem;font-weight:700;border:none;background:#5755ff;color:white;margin-bottom:10px;box-sizing:border-box;">🧭 Safari로 열기</button>` : ''}
+        ${isAndroid ? `<button onclick="location.href='intent:'+location.href+'#Intent;scheme=https;package=com.android.chrome;end'" style="display:block;width:100%;padding:13px;border-radius:12px;font-size:0.95rem;font-weight:700;border:none;background:#5755ff;color:white;margin-bottom:10px;box-sizing:border-box;">🌐 크롬으로 열기</button>` : ''}
+        <button onclick="if(navigator.clipboard){navigator.clipboard.writeText(location.href).then(function(){alert('주소가 복사됐어요!\\n브라우저에 붙여넣기 해주세요 😊')});}else{prompt('주소를 복사하세요',location.href);}" style="display:block;width:100%;padding:13px;border-radius:12px;font-size:0.95rem;font-weight:700;border:none;background:#f0f0ff;color:#5755ff;margin-bottom:16px;box-sizing:border-box;">🔗 주소 복사하기</button>
+        <p style="font-size:0.72rem;color:#999;line-height:1.7;text-align:left;">
+          📌 카카오톡: 우측 하단 ··· → 다른 브라우저로 열기<br>
+          📌 인스타그램: 우측 하단 ··· → 브라우저에서 열기
+        </p>
+      </div>`;
+    document.addEventListener('DOMContentLoaded', function(){ document.body.appendChild(overlay); });
+    // DOMContentLoaded 이전이면 즉시 추가
+    if(document.body) document.body.appendChild(overlay);
   })();
 </script>
 <div class="ui-wrap">
