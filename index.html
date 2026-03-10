@@ -8,13 +8,13 @@
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap');
   :root { --gold:#b8860b; --gold2:#d4a017; --brown:#5c3d1e; --border:#d4a017; --grid:#e8d5a3; --guide:#f0c8a0; --ink:#2c1810; }
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:'Noto Sans KR',sans-serif; background: #2727bb; min-height:100vh; }
+  body { font-family:'Noto Sans KR',sans-serif; background: linear-gradient(160deg, #74b8d8 0%, #a8d4e8 35%, #d0eaf5 65%, #e8f4fa 100%); min-height:100vh; }
 
   .ui-wrap { max-width:560px; margin:0 auto; padding:28px 16px 16px; }
   .app-title { text-align:center; margin-bottom:22px; }
   .app-title .cross { font-size:2rem; margin-bottom:4px; }
-  .app-title h1 { font-size:clamp(1.6rem,6.5vw,2.1rem); font-weight:900; color:#ffffff; letter-spacing:0.5px; text-shadow:0 2px 8px rgba(0,0,0,0.15); }
-  .app-title p { color:#a0a0cc; font-size:clamp(0.8rem,3vw,0.9rem); margin-top:4px; }
+  .app-title h1 { font-size:clamp(1.6rem,6.5vw,2.1rem); font-weight:900; color:#1a3a5c; letter-spacing:0.5px; text-shadow:0 2px 8px rgba(255,255,255,0.4); }
+  .app-title p { color:#3a6080; font-size:clamp(0.8rem,3vw,0.9rem); margin-top:4px; }
 
   :root {
     --gold:  #b8860b; --gold2: #d4a017; --brown: #5c3d1e;
@@ -100,23 +100,22 @@
   .print-bar.show { display:block; }
   .print-bar .btn { width:100%; display:block; }
 
-  .preview-scroll { padding: 16px 16px 48px; }
+  .preview-scroll { padding: 12px 12px 48px; }
 
-  .sheet-scaler {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-  }
+  .sheet-scaler { margin-bottom: 16px; }
 
   .sheet {
     background: white;
-    width: 210mm;
-    min-height: 297mm;
-    padding: 15mm;
-    box-shadow: 0 8px 36px rgba(0,0,0,0.3);
+    width: 100%;
+    padding: 5vw 5vw;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
     border-radius: 4px;
     position: relative;
-    flex-shrink: 0;
+    box-sizing: border-box;
+  }
+
+  @media (min-width: 600px) {
+    .sheet { max-width: 560px; margin: 0 auto; padding: 24px; }
   }
   .sheet::before { content:''; position:absolute; inset:0; background-image:radial-gradient(circle,#c7c7f5 1px,transparent 1px); background-size:18px 18px; opacity:0.25; pointer-events:none; }
 
@@ -190,8 +189,15 @@
     body { background:none !important; }
     .ui-wrap, .print-bar { display:none !important; }
     .preview-scroll { padding:0; overflow:visible; }
-    .sheet-scaler { transform:none !important; margin-bottom:0 !important; width:210mm; }
-    .sheet { box-shadow:none; border-radius:0; margin:0; width:210mm; min-height:297mm; page-break-after:always; padding:15mm; }
+    .sheet-scaler { margin-bottom:0; }
+    .sheet {
+      box-shadow:none; border-radius:0; margin:0;
+      width:210mm; min-height:297mm; padding:15mm;
+      page-break-after:always;
+      /* 인쇄 시 mm 단위로 전환 */
+      --cw: var(--cw-print);
+      --cf: var(--cf-print);
+    }
   }
 </style>
 </head>
@@ -201,17 +207,6 @@
     <div class="cross">✝️</div>
     <h1>성경 필사 연습장</h1>
     <p>말씀을 손으로 새기며 묵상해요</p>
-    <div id="chromeBar" style="margin-top:10px;display:none;">
-      <button onclick="openInChrome()" style="
-        background:white; color:#2727bb; border:none; border-radius:20px;
-        padding:7px 18px; font-family:'Noto Sans KR',sans-serif;
-        font-size:0.82rem; font-weight:700; cursor:pointer;
-        box-shadow:0 2px 8px rgba(0,0,0,0.15);
-        display:inline-flex; align-items:center; gap:6px;
-      ">
-        🌐 크롬으로 열기
-      </button>
-    </div>
   </div>
 
   <div class="panel">
@@ -456,8 +451,18 @@
 
     const container = document.getElementById('sheetContainer');
     container.innerHTML='';
-    const cellMm=parseFloat((180/cols).toFixed(4));
-    const fontMm=parseFloat((cellMm*0.62).toFixed(4));
+
+    // 화면 너비 기준 px 계산 (모바일/데스크탑 모두 대응)
+    const scrollW = document.getElementById('previewScroll').clientWidth - 24;
+    const sheetW  = Math.min(scrollW, 560);
+    const padPx   = sheetW * 0.05;
+    const usableW = sheetW - padPx * 2;
+    const cellPx  = Math.floor(usableW / cols);
+    const fontPx  = Math.floor(cellPx * 0.62);
+
+    // 인쇄용 mm도 병행 계산
+    const cellMm  = parseFloat((180/cols).toFixed(4));
+    const fontMm  = parseFloat((cellMm*0.62).toFixed(4));
 
     // 공백도 1칸으로 계산해서 cols 단위로 줄 분할 (원고지 방식)
     function splitLines(text, maxCols){
@@ -488,9 +493,13 @@
       });
     });
 
-    // 페이지당 최대 섹션 수
-    const sectionH = cellMm*(1+practiceN+fadeN)+2.5+3;
-    const maxPer   = Math.max(1, Math.floor(253/sectionH));
+    // 페이지당 최대 섹션 수 (px 기준)
+    const sheetHpx = sheetW * (297/210); // A4 비율
+    const padVpx   = sheetW * 0.05 * 2;
+    const headerPx = 48;
+    const usableHpx = sheetHpx - padVpx - headerPx;
+    const sectionHpx = cellPx * (1 + practiceN + fadeN) + 8 + 10;
+    const maxPer = Math.max(1, Math.floor(usableHpx / sectionHpx));
 
     const bookNum=parseInt(document.getElementById('bookSelect').value);
     const chapter=document.getElementById('chapterSelect').value;
@@ -502,19 +511,21 @@
       const scaler = document.createElement('div');
       scaler.className = 'sheet-scaler';
       scaler.appendChild(
-        buildSheet(ps,cols,cellMm,fontMm,practiceN,fadeN,fadeOpacity,showName,pIdx+1,pages.length,subTitle)
+        buildSheet(ps,cols,cellPx,fontPx,cellMm,fontMm,practiceN,fadeN,fadeOpacity,showName,pIdx+1,pages.length,subTitle)
       );
       container.appendChild(scaler);
     });
     document.getElementById('printBar').classList.add('show');
-    setTimeout(scaleSheets, 50);
     container.scrollIntoView({behavior:'smooth',block:'start'});
   }
 
-  function buildSheet(sections,cols,cellMm,fontMm,practiceN,fadeN,fadeOpacity,showName,pageNum,total,subTitle){
+  function buildSheet(sections,cols,cellPx,fontPx,cellMm,fontMm,practiceN,fadeN,fadeOpacity,showName,pageNum,total,subTitle){
     const sheet=document.createElement('div'); sheet.className='sheet';
-    sheet.style.setProperty('--cw',cellMm+'mm');
-    sheet.style.setProperty('--cf',fontMm+'mm');
+    // 화면: px, 인쇄: mm (CSS @media print에서 mm 변수 사용)
+    sheet.style.setProperty('--cw', cellPx+'px');
+    sheet.style.setProperty('--cf', fontPx+'px');
+    sheet.style.setProperty('--cw-print', cellMm+'mm');
+    sheet.style.setProperty('--cf-print', fontMm+'mm');
     const hdr=document.createElement('div'); hdr.className='sheet-header';
     const tw=document.createElement('div');
     tw.innerHTML=`<div class="sheet-title">✝ 성경 필사 연습장</div><div class="sheet-sub">${subTitle}</div>`;
@@ -571,35 +582,6 @@
     return row;
   }
 
-  function scaleSheets(){
-    const mmToPx = 96 / 25.4;
-    const a4px = 210 * mmToPx;
-    const available = document.getElementById('previewScroll').clientWidth - 32;
-    const scale = Math.min(1, available / a4px);
-    document.querySelectorAll('.sheet-scaler').forEach(el => {
-      el.style.zoom = scale;
-    });
-  }
-
-  window.addEventListener('resize', scaleSheets);
-
-  // 사파리 감지 → 크롬으로 열기 버튼 표시
-  (function(){
-    const ua = navigator.userAgent;
-    const isSafari = /Safari/.test(ua) && !/Chrome/.test(ua) && !/CriOS/.test(ua);
-    if(isSafari) document.getElementById('chromeBar').style.display = 'block';
-  })();
-
-  function openInChrome(){
-    const url = location.href;
-    // iOS 크롬 URL scheme
-    const chromeUrl = url.replace(/^https?:\/\//, 'googlechrome://');
-    location.href = chromeUrl;
-    // 크롬 미설치 시 앱스토어로
-    setTimeout(()=>{
-      location.href = 'https://apps.apple.com/kr/app/google-chrome/id535886823';
-    }, 2000);
-  }
 
   window.addEventListener('DOMContentLoaded', initBooks);
 </script>
