@@ -503,7 +503,7 @@
 
     // 페이지당 최대 섹션 수 — mm 기준으로 고정 계산 (인쇄 일관성)
     // A4 사용 영역: 297mm - 15mm*2(패딩) - 18mm(헤더) = 249mm
-    const sectionHmm = cellMm * (1 + practiceN + fadeN) + 2.5 + 3;
+    const sectionHmm = cellMm * (1 + practiceN + fadeN) + 9.5;
     const maxPer = Math.max(1, Math.floor(249 / sectionHmm));
 
     const bookNum=parseInt(document.getElementById('bookSelect').value);
@@ -606,8 +606,10 @@
 
     const { cols, showName, practiceN, fadeN, fadeOpacity, subTitle } = lastGenOptions;
     const cellMm = 180 / cols;
-    const fontMm = cellMm * 0.72;
-    const sectionHmm = cellMm * (1 + practiceN + fadeN) + 2.5 + 3;
+    // 섹션 높이: 셀행들 + verse-label(3mm) + row-divider(4mm)
+    const rowsMm  = cellMm * (1 + practiceN + fadeN);
+    const sectionHmm = rowsMm + 9.5;
+    // 사용 가능 높이: 297 - 15*2(여백) - 18(헤더) = 249mm
     const maxPer = Math.max(1, Math.floor(249 / sectionHmm));
 
     // 인쇄용 시트 HTML 생성
@@ -643,7 +645,8 @@
 
     let sheetsHTML = '';
     pages.forEach((ps, pIdx) => {
-      sheetsHTML += `<div class="sheet" style="--cw:calc(180mm / ${cols});--cf:calc(180mm / ${cols} * 0.72);">`;
+      const isLast = pIdx === pages.length - 1;
+      sheetsHTML += `<div class="sheet" style="--cw:calc(180mm / ${cols});--cf:calc(180mm / ${cols} * 0.72);${isLast ? 'page-break-after:avoid;' : ''}">`;
       // 헤더
       const nameHTML = showName ? `<div class="name-field">이름 <span class="uline"></span></div>` : '';
       sheetsHTML += `
@@ -670,7 +673,7 @@
 @page { size:A4; margin:0; }
 * { margin:0; padding:0; box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 body { font-family:'Noto Sans KR',sans-serif; }
-.sheet { width:210mm; min-height:297mm; padding:15mm; background:white; page-break-after:always; position:relative; }
+.sheet { width:210mm; background:white; page-break-after:always; position:relative; padding:15mm; }
 .sheet-header { display:flex; align-items:center; justify-content:space-between; border-bottom:1.5px solid #5755ff; padding-bottom:3mm; margin-bottom:4mm; gap:4px; }
 .sheet-title { font-size:12pt; font-weight:900; color:#1a1a3e; white-space:nowrap; }
 .sheet-sub { font-size:8pt; color:#5755ff; font-weight:700; margin-top:1px; }
