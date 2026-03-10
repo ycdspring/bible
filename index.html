@@ -120,13 +120,13 @@
   }
   .sheet::before { content:''; position:absolute; inset:0; background-image:radial-gradient(circle,#c7c7f5 1px,transparent 1px); background-size:18px 18px; opacity:0.25; pointer-events:none; }
 
-  .sheet-header { display:flex; align-items:center; justify-content:space-between; border-bottom:1.5px solid #5755ff; padding-bottom:3mm; margin-bottom:4mm; position:relative; z-index:1; }
-  .sheet-title { font-size:12pt; font-weight:900; color:#1a1a3e; }
-  .sheet-sub { font-size:8pt; color:#5755ff; font-weight:700; margin-top:1px; }
-  .sheet-header-right { display:flex; align-items:center; gap:5mm; flex-shrink:0; }
-  .name-field { display:flex; align-items:center; gap:2mm; font-size:8pt; color:#888; white-space:nowrap; }
-  .name-field .uline { display:inline-block; width:18mm; border-bottom:1px solid #ccc; }
-  .sheet-page { font-size:7.5pt; color:#5755ff; background:#f0f0ff; border:1px solid #c7c7f5; border-radius:5px; padding:2px 8px; white-space:nowrap; }
+  .sheet-header { display:flex; align-items:center; justify-content:space-between; border-bottom:1.5px solid #5755ff; padding-bottom:3mm; margin-bottom:4mm; position:relative; z-index:1; gap:4px; }
+  .sheet-title { font-size:clamp(8pt, 2.5vw, 12pt); font-weight:900; color:#1a1a3e; white-space:nowrap; }
+  .sheet-sub { font-size:clamp(6pt, 1.8vw, 8pt); color:#5755ff; font-weight:700; margin-top:1px; white-space:nowrap; }
+  .sheet-header-right { display:flex; align-items:center; gap:3mm; flex-shrink:0; }
+  .name-field { display:flex; align-items:center; gap:2mm; font-size:clamp(6pt,1.8vw,8pt); color:#888; white-space:nowrap; }
+  .name-field .uline { display:inline-block; width:14mm; border-bottom:1px solid #ccc; }
+  .sheet-page { font-size:clamp(6pt,1.8vw,7.5pt); color:#5755ff; background:#f0f0ff; border:1px solid #c7c7f5; border-radius:5px; padding:2px 6px; white-space:nowrap; }
 
   .verse-section { position:relative; z-index:1; margin-bottom:2mm; }
   .verse-label { font-size:7pt; color:#5755ff; font-weight:700; margin-bottom:0.8mm; }
@@ -529,10 +529,10 @@
     sheet.style.setProperty('--cf-print', fontMm+'mm');
     const hdr=document.createElement('div'); hdr.className='sheet-header';
     const tw=document.createElement('div');
-    tw.innerHTML=`<div class="sheet-title">✝ 성경 필사 연습장</div><div class="sheet-sub">${subTitle}</div>`;
+    tw.innerHTML=`<div class="sheet-title">✝ 손으로 쓰는 성경</div><div class="sheet-sub">${subTitle}</div>`;
     hdr.appendChild(tw);
     const right=document.createElement('div'); right.className='sheet-header-right';
-    if(showName) right.innerHTML='<div class="name-field">이름 <span class="uline"></span></div><div class="name-field">확인 <span class="uline"></span></div>';
+    if(showName) right.innerHTML='<div class="name-field">이름 <span class="uline"></span></div>';
     if(total>1){ const pg=document.createElement('div'); pg.className='sheet-page'; pg.textContent=pageNum+' / '+total; right.appendChild(pg); }
     hdr.appendChild(right); sheet.appendChild(hdr);
 
