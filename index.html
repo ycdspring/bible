@@ -140,6 +140,7 @@
     font-size:var(--cf); font-weight:900; color:#1e1c93;
     background:#f0f0ff;
     position:relative; overflow:hidden; line-height:1; font-family:'Noto Sans KR',sans-serif;
+    word-break:keep-all; white-space:nowrap;
   }
   .original-cell::before { content:''; position:absolute; width:100%; height:1px; top:50%; background:#9b9bf0; opacity:0.35; }
   .original-cell::after  { content:''; position:absolute; width:1px; height:100%; left:50%; background:#9b9bf0; opacity:0.35; }
@@ -200,6 +201,17 @@
     <div class="cross">✝️</div>
     <h1>성경 필사 연습장</h1>
     <p>말씀을 손으로 새기며 묵상해요</p>
+    <div id="chromeBar" style="margin-top:10px;display:none;">
+      <button onclick="openInChrome()" style="
+        background:white; color:#2727bb; border:none; border-radius:20px;
+        padding:7px 18px; font-family:'Noto Sans KR',sans-serif;
+        font-size:0.82rem; font-weight:700; cursor:pointer;
+        box-shadow:0 2px 8px rgba(0,0,0,0.15);
+        display:inline-flex; align-items:center; gap:6px;
+      ">
+        🌐 크롬으로 열기
+      </button>
+    </div>
   </div>
 
   <div class="panel">
@@ -445,7 +457,7 @@
     const container = document.getElementById('sheetContainer');
     container.innerHTML='';
     const cellMm=parseFloat((180/cols).toFixed(4));
-    const fontMm=parseFloat((cellMm*0.78).toFixed(4));
+    const fontMm=parseFloat((cellMm*0.62).toFixed(4));
 
     // 공백도 1칸으로 계산해서 cols 단위로 줄 분할 (원고지 방식)
     function splitLines(text, maxCols){
@@ -570,6 +582,24 @@
   }
 
   window.addEventListener('resize', scaleSheets);
+
+  // 사파리 감지 → 크롬으로 열기 버튼 표시
+  (function(){
+    const ua = navigator.userAgent;
+    const isSafari = /Safari/.test(ua) && !/Chrome/.test(ua) && !/CriOS/.test(ua);
+    if(isSafari) document.getElementById('chromeBar').style.display = 'block';
+  })();
+
+  function openInChrome(){
+    const url = location.href;
+    // iOS 크롬 URL scheme
+    const chromeUrl = url.replace(/^https?:\/\//, 'googlechrome://');
+    location.href = chromeUrl;
+    // 크롬 미설치 시 앱스토어로
+    setTimeout(()=>{
+      location.href = 'https://apps.apple.com/kr/app/google-chrome/id535886823';
+    }, 2000);
+  }
 
   window.addEventListener('DOMContentLoaded', initBooks);
 </script>
