@@ -282,7 +282,7 @@
 </div>
 
 <div class="print-bar" id="printBar">
-  <button class="btn btn-print" onclick="window.print()">🖨 A4 인쇄하기</button>
+  <button class="btn btn-print" onclick="doPrint()">🖨 인쇄 / PDF 저장</button>
 </div>
 <div class="preview-scroll" id="previewScroll">
   <div id="sheetContainer"></div>
@@ -585,6 +585,23 @@
     return row;
   }
 
+
+  function doPrint(){
+    // iOS 사파리 대응
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if(isMobile){
+      // 모바일: 잠깐 안내 후 print 시도
+      const btn = document.querySelector('.btn-print');
+      const orig = btn.textContent;
+      btn.textContent = '잠시만요...';
+      setTimeout(()=>{
+        window.print();
+        btn.textContent = orig;
+      }, 300);
+    } else {
+      window.print();
+    }
+  }
 
   window.addEventListener('DOMContentLoaded', initBooks);
 </script>
