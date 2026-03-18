@@ -691,14 +691,14 @@
     }
 
     let sheetsHTML = '';
-    const cellPct = (100 / cols).toFixed(6);
-    const cellMmVal = (180 / cols).toFixed(6); // 폰트 크기 계산용
+    const cellMmVal = (180 / cols).toFixed(6);
     const fontMmVal = (180 / cols * 0.72).toFixed(6);
 
     // 헤더 (1개만, 첫 페이지)
     const nameHTML = showName ? `<div style="display:flex;align-items:center;gap:2mm;font-size:8pt;color:#888;white-space:nowrap;">이름 <span style="display:inline-block;width:22mm;border-bottom:1px solid #ccc;"></span></div>` : '';
-    sheetsHTML = `<div class="sheet" style="--cw:${cellPct}%;--cch:${cellMmVal}mm;--cf:${fontMmVal}mm;">
-      <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1.5px solid #5755ff;padding-bottom:3mm;margin-bottom:4mm;gap:4px;width:100%;page-break-inside:avoid;break-inside:avoid;">
+    sheetsHTML = `<div style="margin:15mm;font-family:'Noto Sans KR',sans-serif;" style="--cw:${cellMmVal}mm;--cf:${fontMmVal}mm;">
+      <div style="--cw:${cellMmVal}mm;--cf:${fontMmVal}mm;">
+      <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1.5px solid #5755ff;padding-bottom:3mm;margin-bottom:4mm;gap:4px;width:180mm;page-break-inside:avoid;break-inside:avoid;">
         <div style="flex-shrink:0;">
           <div style="font-size:12pt;font-weight:900;color:#1a1a3e;white-space:nowrap;">✝ 손으로 쓰는 성경</div>
           <div style="font-size:8pt;color:#5755ff;font-weight:700;margin-top:1px;white-space:nowrap;">${subTitle}</div>
@@ -715,17 +715,17 @@
       for(let r = 0; r < practiceN; r++) sheetsHTML += makeRowHTML(chars, 'practice', null, cols);
       sheetsHTML += '</div><div class="row-divider"></div></div>';
     });
-    sheetsHTML += '</div>';
+    sheetsHTML += '</div></div>';
 
     const printHTML = `<!DOCTYPE html><html><head>
 <meta charset="UTF-8">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap');
-@page { size:A4; margin:15mm 15mm 15mm 15mm; }
+@page { size:A4; margin:0; }
 * { margin:0; padding:0; box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 html { margin:0; padding:0; }
 body { margin:0; padding:0; font-family:'Noto Sans KR',sans-serif; }
-.sheet { width:100%; background:white; }
+.sheet { width:210mm; padding:15mm; background:white; }
 .sheet-header { display:flex; align-items:center; justify-content:space-between; border-bottom:1.5px solid #5755ff; padding-bottom:3mm; margin-bottom:4mm; gap:4px; }
 .sheet-title { font-size:12pt; font-weight:900; color:#1a1a3e; white-space:nowrap; }
 .sheet-sub { font-size:8pt; color:#5755ff; font-weight:700; margin-top:1px; }
@@ -735,12 +735,12 @@ body { margin:0; padding:0; font-family:'Noto Sans KR',sans-serif; }
 .sheet-page { font-size:7.5pt; color:#5755ff; background:white; border:1px solid #c7c7f5; border-radius:5px; padding:2px 6px; white-space:nowrap; }
 .verse-section { margin-bottom:2mm; page-break-inside:avoid; break-inside:avoid; }
 .verse-label { font-size:7pt; color:#5755ff; font-weight:700; margin-bottom:0.8mm; }
-.char-row { display:flex; flex-wrap:nowrap; width:100%; overflow:hidden; }
-.original-cell { width:var(--cw); height:var(--cch); min-width:0; flex-shrink:1; border:1px solid #9b9bf0; display:flex; align-items:center; justify-content:center; font-size:var(--cf); font-weight:900; color:#1e1c93; background:white; line-height:1; font-family:'Noto Sans KR',sans-serif; }
-.practice-cell { width:var(--cw); height:var(--cch); min-width:0; flex-shrink:1; border:1px solid #ddddf5; background:white; }
-.fade-cell { width:var(--cw); height:var(--cch); min-width:0; flex-shrink:1; border:1px solid #ddddf5; background:white; display:flex; align-items:center; justify-content:center; font-size:var(--cf); font-weight:900; font-family:'Noto Sans KR',sans-serif; line-height:1; color:#1e1c93; }
-.space-cell { width:var(--cw); height:var(--cch); min-width:0; flex-shrink:1; border:1px solid #ddddf5; background:white; }
-.space-original { width:var(--cw); height:var(--cch); min-width:0; flex-shrink:1; border:1px solid #9b9bf0; background:white; }
+.char-row { display:flex; flex-wrap:nowrap; width:180mm; overflow:hidden; }
+.original-cell { width:var(--cw); height:var(--cw); min-width:var(--cw); flex-shrink:0; border:1px solid #9b9bf0; display:flex; align-items:center; justify-content:center; font-size:var(--cf); font-weight:900; color:#1e1c93; background:white; line-height:1; font-family:'Noto Sans KR',sans-serif; }
+.practice-cell { width:var(--cw); height:var(--cw); min-width:var(--cw); flex-shrink:0; border:1px solid #ddddf5; background:white; }
+.fade-cell { width:var(--cw); height:var(--cw); min-width:var(--cw); flex-shrink:0; border:1px solid #ddddf5; background:white; display:flex; align-items:center; justify-content:center; font-size:var(--cf); font-weight:900; font-family:'Noto Sans KR',sans-serif; line-height:1; color:#1e1c93; }
+.space-cell { width:var(--cw); height:var(--cw); min-width:var(--cw); flex-shrink:0; border:1px solid #ddddf5; background:white; }
+.space-original { width:var(--cw); height:var(--cw); min-width:var(--cw); flex-shrink:0; border:1px solid #9b9bf0; background:white; }
 .practice-rows { display:flex; flex-direction:column; }
 .row-divider { height:1.5mm; margin:1.5mm 0; border-bottom:1px dashed #c7c7f5; }
 </style>
