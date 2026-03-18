@@ -174,7 +174,7 @@
   .row-divider { height:1.5mm; margin:1.5mm 0; border-bottom:1px dashed #c7c7f5; }
 
   @media print {
-    @page { size:A4; margin:0; }
+    @page { size:A4; margin:15mm; }
     * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
     html, body { background:none !important; margin:0; padding:0; }
     .ui-wrap, .print-bar, footer { display:none !important; }
@@ -182,9 +182,8 @@
     .sheet-scaler { margin:0 !important; padding:0 !important; background:none !important; }
     .sheet {
       box-shadow:none !important; border-radius:0 !important;
-      margin:0 !important; width:210mm !important;
-      min-height:297mm !important; padding:15mm !important;
-      page-break-after: always;
+      margin:0 !important; width:180mm !important;
+      padding:0 !important;
     }
   }
 </style>
@@ -212,11 +211,20 @@
       <div style="background:white;border-radius:20px;padding:36px 28px;max-width:300px;width:85%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.12);">
         <div style="font-size:2.5rem">✝️</div>
         <h2 style="font-size:1.1rem;font-weight:900;color:#1a1a3e;margin:12px 0 8px;">외부 브라우저로 열어주세요</h2>
-        <p style="font-size:0.82rem;color:#555;line-height:1.6;margin-bottom:20px;">인쇄 기능을 사용하려면<br>외부 브라우저가 필요해요</p>
-        ${isIOS ? `<button onclick="location.href='safari-'+location.href" style="display:block;width:100%;padding:13px;border-radius:12px;font-size:0.95rem;font-weight:700;border:none;background:#5755ff;color:white;margin-bottom:10px;box-sizing:border-box;">🧭 Safari로 열기</button>` : ''}
-        ${isAndroid ? `<button onclick="location.href='intent:'+location.href+'#Intent;scheme=https;package=com.android.chrome;end'" style="display:block;width:100%;padding:13px;border-radius:12px;font-size:0.95rem;font-weight:700;border:none;background:#5755ff;color:white;margin-bottom:10px;box-sizing:border-box;">🌐 크롬으로 열기</button>` : ''}
-        <button onclick="if(navigator.clipboard){navigator.clipboard.writeText(location.href).then(function(){alert('주소가 복사됐어요!\\n브라우저에 붙여넣기 해주세요 😊')});}else{prompt('주소를 복사하세요',location.href);}" style="display:block;width:100%;padding:13px;border-radius:12px;font-size:0.95rem;font-weight:700;border:none;background:white;color:#5755ff;margin-bottom:16px;box-sizing:border-box;">🔗 주소 복사하기</button>
-        <p style="font-size:0.72rem;color:#999;line-height:1.7;text-align:left;">
+        <p style="font-size:0.82rem;color:#555;line-height:1.6;margin-bottom:20px;">인쇄 기능을 사용하려면<br>Safari 또는 Chrome이 필요해요</p>
+        ${isAndroid ? `<button onclick="location.href='intent:'+location.href.replace(/^https?:\\/\\//,'')+'#Intent;scheme=https;package=com.android.chrome;end'" style="display:block;width:100%;padding:13px;border-radius:12px;font-size:0.95rem;font-weight:700;border:none;background:#5755ff;color:white;margin-bottom:10px;box-sizing:border-box;">🌐 크롬으로 열기</button>` : ''}
+        <button onclick="
+          var u=location.href;
+          if(navigator.clipboard){
+            navigator.clipboard.writeText(u).then(function(){alert('주소를 복사했어요! 😊\\nSafari 또는 Chrome 주소창에 붙여넣기 해주세요.')});
+          } else {
+            var t=document.createElement('textarea'); t.value=u;
+            document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t);
+            alert('주소를 복사했어요! 😊\\nSafari 또는 Chrome 주소창에 붙여넣기 해주세요.');
+          }
+        " style="display:block;width:100%;padding:13px;border-radius:12px;font-size:0.95rem;font-weight:700;border:none;background:#5755ff;color:white;margin-bottom:10px;box-sizing:border-box;">🔗 주소 복사하기</button>
+        <p style="font-size:0.72rem;color:#999;line-height:1.8;text-align:left;">
+          ${isIOS ? '📌 복사 후 Safari 주소창에 붙여넣기<br>' : ''}
           📌 카카오톡: 우측 하단 ··· → 다른 브라우저로 열기<br>
           📌 인스타그램: 우측 하단 ··· → 브라우저에서 열기
         </p>
@@ -712,10 +720,10 @@
 <meta charset="UTF-8">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap');
-@page { size:A4; margin:0; }
+@page { size:A4; margin:15mm; }
 * { margin:0; padding:0; box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 html, body { margin:0; padding:0; font-family:'Noto Sans KR',sans-serif; }
-.sheet { width:210mm; padding:15mm; background:white; }
+.sheet { width:180mm; background:white; }
 .sheet-header { display:flex; align-items:center; justify-content:space-between; border-bottom:1.5px solid #5755ff; padding-bottom:3mm; margin-bottom:4mm; gap:4px; }
 .sheet-title { font-size:12pt; font-weight:900; color:#1a1a3e; white-space:nowrap; }
 .sheet-sub { font-size:8pt; color:#5755ff; font-weight:700; margin-top:1px; }
