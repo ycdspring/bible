@@ -651,7 +651,82 @@
       return;
     }
     if(!lastSections || !lastGenOptions){ alert('먼저 말씀을 불러오고 만들기를 눌러주세요!'); return; }
-    window.print();
+
+    const { cols, showName, practiceN, fadeN, fadeOpacity, subTitle } = lastGenOptions;
+    const cellMmVal = (180 / cols).toFixed(6);
+    const fontMmVal = (180 / cols * 0.72).toFixed(6);
+
+    function makeCellHTML(ch, type, opacity){
+      if(type === 'original'){
+        return ch === ' ' ? `<div class="so"></div>` : `<div class="oc">${ch}</div>`;
+      } else if(type === 'fade'){
+        return ch === ' ' ? `<div class="sc"></div>` : `<div class="fc" style="opacity:${(opacity/100).toFixed(2)}">${ch}</div>`;
+      } else {
+        return ch === ' ' ? `<div class="sc"></div>` : `<div class="pc"></div>`;
+      }
+    }
+
+    function makeRow(chars, type, opacity){
+      let h = '<div class="row">';
+      chars.forEach(ch => { h += makeCellHTML(ch, type, opacity); });
+      for(let i = chars.length; i < cols; i++){
+        h += type === 'original' ? '<div class="so"></div>' : '<div class="pc"></div>';
+      }
+      return h + '</div>';
+    }
+
+    const nameHTML = showName
+      ? `<div style="display:flex;align-items:center;gap:2mm;font-size:8pt;color:#888;">이름 <span style="display:inline-block;width:22mm;border-bottom:1px solid #ccc;"></span></div>`
+      : '';
+
+    let body = `<div class="header">
+      <div>
+        <div style="font-size:12pt;font-weight:900;color:#1a1a3e;">✝ 손으로 쓰는 성경</div>
+        <div style="font-size:8pt;color:#5755ff;font-weight:700;">${subTitle}</div>
+      </div>
+      <div>${nameHTML}</div>
+    </div>`;
+
+    lastSections.forEach(({ verseNum, lineNum, totalLines, chars }) => {
+      const label = totalLines > 1 ? `${verseNum}절 (${lineNum}/${totalLines})` : `${verseNum}절`;
+      body += `<div class="vs">`;
+      body += `<div class="vl">${label}</div>`;
+      body += makeRow(chars, 'original', null);
+      for(let r = 0; r < fadeN; r++) body += makeRow(chars, 'fade', fadeOpacity);
+      for(let r = 0; r < practiceN; r++) body += makeRow(chars, 'practice', null);
+      body += `<div class="divider"></div></div>`;
+    });
+
+    const cw = cellMmVal + 'mm';
+    const cf = fontMmVal + 'mm';
+
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap');
+@page { size:A4; margin:15mm; }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+body { font-family:'Noto Sans KR',sans-serif; }
+.header { display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid #5755ff; padding-bottom:3mm; margin-bottom:4mm; }
+.vs { margin-bottom:2mm; page-break-inside:avoid; break-inside:avoid; }
+.vl { font-size:7pt; color:#5755ff; font-weight:700; margin-bottom:0.8mm; }
+.row { display:flex; }
+.oc,.pc,.fc,.sc,.so { width:${cw}; height:${cw}; flex-shrink:0; }
+.oc { border:1px solid #9b9bf0; display:flex; align-items:center; justify-content:center; font-size:${cf}; font-weight:900; color:#1e1c93; }
+.so { border:1px solid #9b9bf0; }
+.pc { border:1px solid #ddddf5; }
+.sc { border:1px solid #ddddf5; }
+.fc { border:1px solid #ddddf5; display:flex; align-items:center; justify-content:center; font-size:${cf}; font-weight:900; color:#1e1c93; }
+.divider { height:1.5mm; margin:1.5mm 0; border-bottom:1px dashed #c7c7f5; }
+</style>
+</head><body>${body}<script>
+document.fonts.ready.then(function(){ window.print(); });
+<\/script></body></html>`;
+
+    const w = window.open('', '_blank');
+    if(!w){ alert('팝업이 차단됐어요!\n브라우저 팝업 허용 후 다시 시도해주세요.'); return; }
+    w.document.write(html);
+    w.document.close();
+    w.focus();
   }
 
   window.addEventListener('DOMContentLoaded', initBooks);
