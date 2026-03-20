@@ -440,16 +440,34 @@
       }
 
       const data = cache[cacheKey];
-      // 응답: { verses: { "1": {verse:1, text:"..."}, "2": {...}, ... } }
       const versesObj = data.verses;
-      const allNums = Object.keys(versesObj).map(Number).sort((a,b)=>a-b);
+      let allNums, versesMap;
+
+      if(Array.isArray(versesObj)){
+        // 배열이면 각 객체의 verse 필드 사용, 없으면 인덱스+1
+        versesMap = {};
+        versesObj.forEach((v,i) => {
+          const num = parseInt(v.verse||v.verse_nr||v.number||i+1);
+          versesMap[num] = {text:(v.text||v.verse_text||'').trim()};
+        });
+        allNums = Object.keys(versesMap).map(Number).sort((a,b)=>a-b);
+      } else {
+        // 객체이면 각 값의 verse 필드 사용, 없으면 키값
+        versesMap = {};
+        Object.keys(versesObj).forEach(k=>{
+          const num = parseInt(versesObj[k].verse||versesObj[k].verse_nr||k);
+          versesMap[num] = {text:(versesObj[k].text||'').trim()};
+        });
+        allNums = Object.keys(versesMap).map(Number).sort((a,b)=>a-b);
+      }
+
       const to = toVal ? parseInt(toVal) : Math.max(...allNums);
 
       currentVerses = allNums
         .filter(n => n>=from && n<=to)
         .map(n => ({
           number: n,
-          text: (versesObj[n].text || '').replace(/\s+/g,' ').trim()
+          text: (versesMap[n].text || '').replace(/\s+/g,' ').trim()
         }))
         .filter(v => v.text.length > 0);
 
